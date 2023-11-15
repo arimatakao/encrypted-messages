@@ -25,19 +25,16 @@ func LoadConfig(path string) error {
 
 	yamlFile, err := os.Open(path)
 	if err != nil {
-		// return fmt.Errorf("can't open config by path: %s", path)
 		return err
 	}
 
 	content, err := io.ReadAll(yamlFile)
 	if err != nil {
-		// return fmt.Errorf("can't read config content by path: %s", path)
 		return err
 	}
 
 	err = yaml.Unmarshal(content, &Conf)
 	if err != nil {
-		// return fmt.Errorf("can't parse config by path: %s", path)
 		return err
 	}
 	return Conf.validate()
