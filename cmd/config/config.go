@@ -10,18 +10,19 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+var App Application
+
 type Application struct {
 	Port    string `yaml:"port" env-default:"8080"`
 	BaseUrl string `yaml:"baseUrl" env-default:"/"`
 }
 
-var Conf Config
-
-type Config struct {
+type cfg struct {
 	App Application `yaml:"app"`
 }
 
 func LoadConfig(path string) error {
+	var conf cfg
 
 	yamlFile, err := os.Open(path)
 	if err != nil {
@@ -33,14 +34,17 @@ func LoadConfig(path string) error {
 		return err
 	}
 
-	err = yaml.Unmarshal(content, &Conf)
+	err = yaml.Unmarshal(content, &conf)
 	if err != nil {
 		return err
 	}
-	return Conf.validate()
+
+	App = conf.App
+
+	return conf.validate()
 }
 
-func (c *Config) validate() error {
+func (c cfg) validate() error {
 
 	// Port
 	if i, err := strconv.Atoi(c.App.Port); err != nil {
@@ -51,7 +55,7 @@ func (c *Config) validate() error {
 
 	// BaseUrl
 	if _, err := url.Parse(c.App.BaseUrl); err != nil {
-		return fmt.Errorf("invalid fortma app.baseUrl: %s", c.App.BaseUrl)
+		return fmt.Errorf("invalid format app.baseUrl: %s", c.App.BaseUrl)
 	}
 
 	return nil
