@@ -1,3 +1,3 @@
 # encrypted-messages
 
-REST API for encrypt your sensetive data
+> REST API for encrypting sensitive data

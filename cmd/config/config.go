@@ -59,5 +59,9 @@ func (c cfg) validate() error {
 		return fmt.Errorf("invalid format app.baseUrl: %s", c.App.BaseUrl)
 	}
 
+	if _, err := url.Parse(c.App.DbUrl); err != nil {
+		return fmt.Errorf("invalid format app.DbUrl: %s", c.App.DbUrl)
+	}
+
 	return nil
 }

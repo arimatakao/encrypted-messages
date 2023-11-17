@@ -1,4 +1,4 @@
 app:
-  port: 9090
-  baseUrl: "/path"
-  db_url: "mongodb://root:example@mongo:27017/"
+  port: 9090 # server port
+  baseUrl: "/path" # base path
+  db_url: "mongodb://root:example@mongo:27017/" # url to MongoDB
