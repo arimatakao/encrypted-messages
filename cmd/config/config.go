@@ -15,6 +15,7 @@ var App Application
 type Application struct {
 	Port    string `yaml:"port" env-default:"8080"`
 	BaseUrl string `yaml:"baseUrl" env-default:"/"`
+	DbUrl   string `yaml:"db_url"`
 }
 
 type cfg struct {

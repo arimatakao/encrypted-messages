@@ -30,7 +30,10 @@ func main() {
 		l.Fatalf("error while load configuration: %s", err.Error())
 	}
 
-	app := server.NewServer(l)
+	app, err := server.NewServer(l)
+	if err != nil {
+		l.Fatalf("server cannot be inited: %s", err.Error())
+	}
 
 	go func() {
 		if err := app.Run(); err != nil && !errors.Is(err, http.ErrServerClosed) {
