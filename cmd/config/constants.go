@@ -6,6 +6,6 @@ const (
 	LOGIN_ROUTE         = "/login"
 	USER_MESSAGES_ROUTE = "/messages"
 
-	MESSAGE_ROUTE     = "/message"
-	GET_MESSAGE_ROUTE = "/{id}"
+	MESSAGE_ROUTE    = "/message"
+	MESSAGE_ID_ROUTE = "/{id}"
 )

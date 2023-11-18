@@ -2,7 +2,6 @@ package server
 
 import (
 	"context"
-	"encoding/json"
 	"log"
 	"net/http"
 	"time"
@@ -62,8 +61,11 @@ func (s *Server) Run() error {
 	messageRoutes := baseRoute.PathPrefix(config.MESSAGE_ROUTE).Subrouter()
 
 	// Get message by id in url
-	messageRoutes.HandleFunc(config.GET_MESSAGE_ROUTE, s.EmptyHandler).
-		Methods(http.MethodPost)
+	messageRoutes.HandleFunc(config.MESSAGE_ID_ROUTE, s.ReadMessageHandler).
+		Methods(http.MethodGet)
+
+	messageRoutes.HandleFunc(config.MESSAGE_ID_ROUTE, s.DeleteMessageHandler).
+		Methods(http.MethodDelete)
 
 	_ = baseRoute.Walk(func(route *mux.Route,
 		router *mux.Router,
@@ -124,17 +126,14 @@ func (s Server) AddMessageHandler(w http.ResponseWriter, r *http.Request) {
 	s.l.Printf("triggering %s", r.URL.Path)
 
 	msg := &storage.MessageReq{}
-	decoder := json.NewDecoder(r.Body)
-	decoder.DisallowUnknownFields()
-	err := decoder.Decode(msg)
-	if err != nil {
+	if err := ReadJSON(r, msg); err != nil {
 		s.l.Printf("failed to unmarshal request body: %s", err.Error())
 		WriteStatus(w, http.StatusBadRequest)
 		return
 	}
 
-	if msg.SomeEmpty() {
-		s.l.Print("request body without required fields")
+	if msg.IsEmpty() {
+		s.l.Print("request body without correct fields")
 		WriteStatus(w, http.StatusBadRequest)
 		return
 	}
@@ -152,8 +151,61 @@ func (s Server) AddMessageHandler(w http.ResponseWriter, r *http.Request) {
 
 	if err := WriteJSON(w, http.StatusOK, resp); err != nil {
 		WriteStatus(w, http.StatusInternalServerError)
-		s.l.Printf("get internal error: %s", err.Error())
+		s.l.Printf("error due send response: %s", err.Error())
 		return
 	}
+
+	s.l.Printf("end triggering: %s", r.URL.Path)
+}
+
+func (s Server) ReadMessageHandler(w http.ResponseWriter, r *http.Request) {
+	s.l.Printf("triggering %s", r.URL.Path)
+
+	vars := mux.Vars(r)
+
+	id, ok := vars["id"]
+	if !ok {
+		WriteStatus(w, http.StatusInternalServerError)
+		s.l.Printf("failed to get var id from path: %s", r.URL.Path)
+		return
+	}
+
+	msg, err := s.db.ReadMessage(id)
+	if err != nil {
+		s.l.Printf("failed to read message to db: %s", err.Error())
+		WriteStatus(w, http.StatusNotFound)
+		return
+	}
+
+	if err := WriteJSON(w, http.StatusOK, msg); err != nil {
+		WriteStatus(w, http.StatusInternalServerError)
+		s.l.Printf("error due send response: %s", err.Error())
+		return
+	}
+
+	s.l.Printf("end triggering: %s", r.URL.Path)
+}
+
+func (s Server) DeleteMessageHandler(w http.ResponseWriter, r *http.Request) {
+	s.l.Printf("triggering %s", r.URL.Path)
+
+	vars := mux.Vars(r)
+
+	id, ok := vars["id"]
+	if !ok {
+		WriteStatus(w, http.StatusInternalServerError)
+		s.l.Printf("failed to get var id from path: %s", r.URL.Path)
+		return
+	}
+
+	err := s.db.DeleteMessage(id)
+	if err != nil {
+		s.l.Printf("failed to delete message from db: %s", err.Error())
+		WriteStatus(w, http.StatusInternalServerError)
+		return
+	}
+
+	WriteStatus(w, http.StatusNoContent)
+
 	s.l.Printf("end triggering: %s", r.URL.Path)
 }

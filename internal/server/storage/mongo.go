@@ -79,10 +79,26 @@ func (m mongoDB) ReadMessage(id string) (*Message, error) {
 
 }
 
-func (m mongoDB) ReadAllMessages() ([]*Message, error) {
+func (m mongoDB) ReadAllMessages(owner_id string) ([]*Message, error) {
 	return nil, nil
 }
 
 func (m mongoDB) DeleteMessage(id string) error {
+	obj, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return fmt.Errorf("failed convert string to _id: %s", id)
+	}
+
+	filter := bson.D{{Key: "_id", Value: obj}}
+
+	_, err = m.coll.DeleteOne(context.TODO(), filter)
+	if err != nil {
+		return fmt.Errorf("failed to delete message with _id: %s", id)
+	}
+
+	return nil
+}
+
+func (m mongoDB) DeleteAllMessages(owner_id string) error {
 	return nil
 }
