@@ -32,7 +32,7 @@ func main() {
 
 	app, err := server.NewServer(l)
 	if err != nil {
-		l.Fatalf("server cannot be inited: %s", err.Error())
+		l.Fatalf("initialization error: %s", err.Error())
 	}
 
 	go func() {
@@ -48,6 +48,6 @@ func main() {
 	if err := app.Shutdown(context.Background()); err != nil {
 		l.Fatalf("shutdown with error: %s", err.Error())
 	}
-	l.Printf("shutdown complete successful")
+	l.Printf("shutdown completed")
 	os.Exit(0)
 }

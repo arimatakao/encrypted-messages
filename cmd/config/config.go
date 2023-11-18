@@ -13,9 +13,11 @@ import (
 var App Application
 
 type Application struct {
-	Port    string `yaml:"port" env-default:"8080"`
-	BaseUrl string `yaml:"baseUrl" env-default:"/"`
-	DbUrl   string `yaml:"db_url"`
+	Port          string `yaml:"port" env-default:"8080"`
+	BaseUrl       string `yaml:"baseUrl" env-default:"/"`
+	DbUrl         string `yaml:"db_url"`
+	TokenSecret   string `yaml:"token_secret"`
+	TokenLifeTime int    `yaml:"token_lifetime"`
 }
 
 type cfg struct {
@@ -48,9 +50,9 @@ func LoadConfig(path string) error {
 func (c cfg) validate() error {
 
 	// Port
-	if i, err := strconv.Atoi(c.App.Port); err != nil {
+	if num, err := strconv.Atoi(c.App.Port); err != nil {
 		return fmt.Errorf("invalid format app.port: %s", c.App.Port)
-	} else if i < 100 {
+	} else if num < 1 {
 		return fmt.Errorf("not allowed value app.port: %s", c.App.Port)
 	}
 
@@ -59,8 +61,18 @@ func (c cfg) validate() error {
 		return fmt.Errorf("invalid format app.baseUrl: %s", c.App.BaseUrl)
 	}
 
+	// MongoBD URL
 	if _, err := url.Parse(c.App.DbUrl); err != nil {
 		return fmt.Errorf("invalid format app.DbUrl: %s", c.App.DbUrl)
+	}
+
+	// Token sercret
+	if len(c.App.TokenSecret) == 0 {
+		return fmt.Errorf("value of app.token_secret is empty")
+	}
+
+	if c.App.TokenLifeTime < 5 {
+		return fmt.Errorf("value of app.token_lifetime field is empty")
 	}
 
 	return nil

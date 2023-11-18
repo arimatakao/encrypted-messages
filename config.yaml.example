@@ -1,4 +1,6 @@
 app:
-  port: 9090 # server port
-  baseUrl: "/path" # base path
+  port: 9090 # server port. default value: 8080
+  baseUrl: "/path" # base path. default value: "/"
   db_url: "mongodb://root:example@mongo:27017/" # url to MongoDB
+  token_secret: "s3cr3t" # secret for JWT token
+  token_lifetime: 10 # token expiration time in minutes
