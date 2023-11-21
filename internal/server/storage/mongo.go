@@ -123,10 +123,15 @@ func (m mongoDB) DeleteUser(id string) error {
 	return nil
 }
 
-func (m mongoDB) AddMessage(msgReq *Message) (string, error) {
+func (m mongoDB) AddMessage(msgIn *Message) (string, error) {
+	objId, err := primitive.ObjectIDFromHex(msgIn.OwnerId)
+	if err != nil {
+		return "", fmt.Errorf("failed to convert owner_id string to _id: %s", msgIn.OwnerId)
+	}
 	msg := MessageReq{
-		IsPublic: &msgReq.IsPublic,
-		Content:  &msgReq.Content,
+		OwnerId:  objId,
+		IsPublic: &msgIn.IsPublic,
+		Content:  &msgIn.Content,
 	}
 	res, err := m.msgColl.InsertOne(context.TODO(), msg)
 	if err != nil {

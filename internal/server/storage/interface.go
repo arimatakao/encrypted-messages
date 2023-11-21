@@ -2,6 +2,8 @@ package storage
 
 import (
 	"context"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type UserStorager interface {
@@ -46,9 +48,9 @@ type Message struct {
 }
 
 type MessageReq struct {
-	OwnerId  *string `json:"owner_id" bson:"owner_id"`
-	IsPublic *bool   `json:"is_public" bson:"is_public"`
-	Content  *string `json:"content" bson:"content"`
+	OwnerId  primitive.ObjectID `json:"owner_id" bson:"owner_id"`
+	IsPublic *bool              `json:"is_public" bson:"is_public"`
+	Content  *string            `json:"content" bson:"content"`
 }
 
 func (m Message) IsEmpty() bool {
